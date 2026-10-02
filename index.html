@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aegis Endless - Retro Pixel Idle RPG</title>
+  <meta name="description" content="Aegis Endless is a retro pixel-art idle RPG featuring stat builds, status effects, gold-driven equipment shop, and infinite progression.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- FIRST LOAD RETRO TITLE SPLASH OVERLAY -->
+  <div id="splash-screen" class="title-splash-screen" title="Aegis Endless">
+    <div class="splash-content">
+      <div class="splash-hero-preview">
+        <div class="pixel-art-fighter" style="
+          width: 96px;
+          height: 96px;
+          background-image: url('art/monsters/Humanoids%20-%20Characters%20%26%20Enemies.png');
+          background-position: 0% 100%;
+          background-size: 500% 300%;
+          background-repeat: no-repeat;
+          image-rendering: pixelated;
+          image-rendering: crisp-edges;
+          filter: drop-shadow(0 12px 20px rgba(0,0,0,0.9)) drop-shadow(0 0 16px rgba(99,102,241,0.7));
+        "></div>
+      </div>
+      <div class="splash-title-group">
+        <h1>AEGIS ENDLESS</h1>
+        <div class="splash-subtitle">GAUNTLET EDITION • RETRO PIXEL RPG</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="app" class="app-container">
+    <!-- STREAMLINED TOP RESOURCE & OPTIONS HUD BAR -->
+    <header class="top-header">
+      <div class="global-resources">
+        <div class="resource-badge gold-badge" title="Gold: Earned from defeated monsters. Used in Shop & Forge.">
+          <div class="pixel-art-icon" style="width: 20px; height: 20px; background-image: url('art/items/%231%20-%20Transparent%20Icons.png'); background-position: -320px -384px; background-size: 320px auto;"></div>
+          <div class="res-details">
+            <span class="res-label">GOLD</span>
+            <span id="gold-display" class="res-val">0</span>
+          </div>
+        </div>
+
+        <div class="resource-badge shards-badge" title="Ancient Shards: Earned through Ascension. Used for permanent Relics.">
+          <div class="pixel-art-icon" style="width: 20px; height: 20px; background-image: url('art/items/%231%20-%20Transparent%20Icons.png'); background-position: -384px -320px; background-size: 320px auto;"></div>
+          <div class="res-details">
+            <span class="res-label">SHARDS</span>
+            <span id="shards-display" class="res-val">0</span>
+          </div>
+        </div>
+
+        <div class="resource-badge dps-badge" title="Current estimated Damage Per Second.">
+          <div class="pixel-art-icon" style="width: 20px; height: 20px; background-image: url('art/items/%231%20-%20Transparent%20Icons.png'); background-position: -256px 0px; background-size: 320px auto;"></div>
+          <div class="res-details">
+            <span class="res-label">DPS</span>
+            <span id="dps-display" class="res-val">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-options-menu" class="header-btn" title="Options, Audio Channels, Game Speed, Analytics & Save Settings">
+          <svg class="pixel-svg" width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M6 0h4v2H6V0zm0 14h4v2H6v-2zM0 6h2v4H0V6zm14 0h2v4h-2V6zM2 2h3v2H2V2zm9 0h3v2h-3V2zM2 11h3v2H2v-2zm9 0h3v2h-3v-2zM4 4h8v8H4V4zm2 2v4h4V6H6z"/>
+          </svg>
+          OPTIONS
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN DASHBOARD VIEW CONTAINER (MOBILE-FIRST TAB SYSTEM) -->
+    <main class="dashboard-grid" id="main-content-views">
+      
+      <!-- TAB 1: LIVE BATTLE ARENA & COMBAT CONTROLS -->
+      <section class="panel tab-view arena-panel active" id="tab-battle">
+        <div class="arena-header">
+          <div class="stage-info">
+            <div id="biome-icon" class="biome-icon"></div>
+            <div>
+              <div class="zone-title" id="zone-name">Whispering Woods</div>
+              <div class="stage-counter">STAGE <span id="current-stage-num">1</span> <span id="boss-indicator" class="boss-tag hidden">[BOSS]</span></div>
+            </div>
+          </div>
+
+          <div class="stage-selector">
+            <button id="btn-prev-stage" class="stage-nav-btn" title="Fight on previous stage">&lt;</button>
+            <span id="stage-select-label" class="stage-select-label">STAGE 1</span>
+            <button id="btn-next-stage" class="stage-nav-btn" title="Fight on next cleared stage">&gt;</button>
+          </div>
+        </div>
+
+        <!-- STATE MODE SWITCHER (PUSH VS GRIND) -->
+        <div class="combat-mode-banner">
+          <div class="mode-desc">
+            <strong id="mode-status-text">Grinding Mode (Safe Farm)</strong>
+            <small id="mode-sub-text">Farming current stage without defeat penalties.</small>
+          </div>
+          <div class="mode-controls-group">
+            <label class="auto-push-checkbox-label" title="Automatically re-engage Push Mode after recovering on safe stage!">
+              <input type="checkbox" id="chk-auto-push"> AUTO-PUSH
+            </label>
+            <button id="btn-toggle-push" class="btn btn-push" title="Toggle Push Mode: Progress to higher stages until defeated!">
+              START PUSH
+            </button>
+          </div>
+        </div>
+
+        <!-- VISUAL ARENA BATTLEFIELD -->
+        <div class="battlefield-canvas-container" id="battlefield-container" data-biome="forest">
+          <div class="biome-scenery" id="biome-scenery">
+            <div class="biome-backdrop" id="biome-backdrop"></div>
+            <div class="biome-midground" id="biome-midground"></div>
+            <div class="biome-props" id="biome-props"></div>
+          </div>
+          <div class="arena-platform" id="arena-platform"></div>
+          <div class="crt-scanlines"></div>
+          <canvas id="battle-particles-canvas" class="battle-particles-canvas"></canvas>
+          
+          <!-- Combat Entities -->
+          <div class="fighter fighter-hero" id="arena-hero">
+            <div class="fighter-sprite" id="hero-sprite"></div>
+            <div class="fighter-name">HERO</div>
+            <div class="entity-hp-bar"><div id="arena-hero-hp" class="entity-hp-fill" style="width: 100%;"></div></div>
+            <div class="status-effect-tray" id="hero-status-tray"></div>
+          </div>
+
+          <div class="vs-divider">VS</div>
+
+          <div class="fighter fighter-enemy" id="arena-enemy">
+            <div class="fighter-sprite" id="enemy-sprite"></div>
+            <div class="fighter-name" id="enemy-name">MONSTER</div>
+            <div class="entity-hp-bar"><div id="arena-enemy-hp" class="entity-hp-fill" style="width: 100%;"></div></div>
+            <div class="status-effect-tray" id="enemy-status-tray"></div>
+          </div>
+
+          <!-- Floating Damage Layer -->
+          <div id="damage-splat-layer" class="damage-splat-layer"></div>
+
+          <!-- Stage Transition Fade-to-Black Overlay -->
+          <div class="arena-fade-overlay" id="arena-fade-overlay"></div>
+        </div>
+
+        <!-- ACTIVE SKILLS BAR -->
+        <div class="skills-bar" id="skills-bar">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- COMBAT STATS SUMMARY BAR -->
+        <div class="arena-metrics-bar">
+          <div class="metric-item">
+            <span>PROGRESS:</span>
+            <strong id="arena-kills-count">0 / 5 MOBS</strong>
+          </div>
+          <div class="metric-item">
+            <span>KILL RATE:</span>
+            <strong id="arena-kpm">0 / MIN</strong>
+          </div>
+          <div class="metric-item">
+            <span>GOLD YIELD:</span>
+            <strong id="arena-gpm">0 / MIN</strong>
+          </div>
+          <div class="metric-item">
+            <span>XP YIELD:</span>
+            <strong id="arena-xpm">0 / MIN</strong>
+          </div>
+        </div>
+
+        <!-- LIVE EVENT & COMBAT LOG -->
+        <div class="combat-log-container">
+          <div class="log-header">
+            <span>COMBAT LOG</span>
+            <button id="btn-clear-log" class="btn-text">CLEAR</button>
+          </div>
+          <div id="combat-log" class="combat-log-stream">
+            <div class="log-entry log-system">[BOOT] Aegis Endless initialized. Equip gear and grind the gauntlet.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: HERO, ATTRIBUTES & BUILD ENGINE -->
+      <section class="panel tab-view hero-panel" id="tab-hero">
+        <div class="panel-header">
+          <h2>HERO PROFILE</h2>
+          <span id="hero-archetype-tag" class="badge badge-accent">NOVICE</span>
+        </div>
+
+        <div class="hero-overview-card">
+          <div class="hero-avatar-wrap">
+            <div id="hero-avatar" class="hero-avatar"></div>
+            <div class="hero-level-tag">LV.<span id="hero-level">1</span></div>
+          </div>
+          <div class="hero-bar-group">
+            <div class="bar-meta">
+              <span>HP</span>
+              <span id="hero-hp-text">100 / 100</span>
+            </div>
+            <div class="progress-bar hp-bar"><div id="hero-hp-fill" class="bar-fill hp-fill" style="width: 100%;"></div></div>
+
+            <div class="bar-meta">
+              <span>XP</span>
+              <span id="hero-xp-text">0 / 50</span>
+            </div>
+            <div class="progress-bar xp-bar"><div id="hero-xp-fill" class="bar-fill xp-fill" style="width: 0%;"></div></div>
+          </div>
+        </div>
+
+        <!-- STAT POINTS ALLOCATION & RESPEC -->
+        <div class="attribute-box">
+          <div class="attrib-header">
+            <div class="ap-counter">
+              <span class="ap-label">UNSPENT AP:</span>
+              <span id="unspent-ap" class="ap-value">0</span>
+            </div>
+            <button id="btn-respec" class="btn btn-warning btn-sm" title="Freely reset and redistribute all attribute points to experiment with new builds!">
+              RESET STATS
+            </button>
+          </div>
+
+          <!-- Allocation Step Multiplier -->
+          <div class="ap-step-selector">
+            <span class="step-label">PER CLICK:</span>
+            <div class="step-buttons">
+              <button class="btn-ap-step active" data-step="1">+1</button>
+              <button class="btn-ap-step" data-step="5">+5</button>
+              <button class="btn-ap-step" data-step="10">+10</button>
+              <button class="btn-ap-step" data-step="max">MAX</button>
+            </div>
+          </div>
+
+          <div class="attribute-grid" id="attribute-rows">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- DERIVED COMBAT STATS ACCORDION / TABS -->
+        <div class="derived-stats-box">
+          <div class="stats-tabs">
+            <button class="stat-tab-btn active" data-tab="tab-offense">OFFENSE</button>
+            <button class="stat-tab-btn" data-tab="tab-defense">DEFENSE</button>
+            <button class="stat-tab-btn" data-tab="tab-utility">UTILITY</button>
+          </div>
+
+          <div id="tab-offense" class="stat-tab-content active">
+            <div class="stat-row"><span>Attack Damage:</span><strong id="stat-atk">0</strong></div>
+            <div class="stat-row"><span>Attack Speed:</span><strong id="stat-aps">0 /s</strong></div>
+            <div class="stat-row"><span>Crit Chance:</span><strong id="stat-crit-chance">0%</strong></div>
+            <div class="stat-row"><span>Crit Damage:</span><strong id="stat-crit-mult">150%</strong></div>
+            <div class="stat-row"><span>Multi-Strike:</span><strong id="stat-multistrike">0%</strong></div>
+            <div class="stat-row"><span>Armor Pen:</span><strong id="stat-armor-pen">0%</strong></div>
+            <div class="stat-row poison-highlight"><span>Poison Potency:</span><strong id="stat-poison">0 Dmg/s</strong></div>
+            <div class="stat-row"><span>Bleed Mult:</span><strong id="stat-bleed">0%</strong></div>
+          </div>
+
+          <div id="tab-defense" class="stat-tab-content">
+            <div class="stat-row"><span>Max Health:</span><strong id="stat-max-hp">0</strong></div>
+            <div class="stat-row"><span>Physical Armor:</span><strong id="stat-armor">0</strong></div>
+            <div class="stat-row"><span>Damage Reduct:</span><strong id="stat-dr">0%</strong></div>
+            <div class="stat-row"><span>Evasion / Dodge:</span><strong id="stat-dodge">0%</strong></div>
+            <div class="stat-row"><span>Block Chance:</span><strong id="stat-block">0%</strong></div>
+            <div class="stat-row"><span>Thorns Reflect:</span><strong id="stat-thorns">0 Dmg</strong></div>
+            <div class="stat-row lifesteal-highlight"><span>Life Steal:</span><strong id="stat-lifesteal">0%</strong></div>
+            <div class="stat-row"><span>Health Regen:</span><strong id="stat-regen">0 HP/s</strong></div>
+          </div>
+
+          <div id="tab-utility" class="stat-tab-content">
+            <div class="stat-row"><span>Gold Find Bonus:</span><strong id="stat-gold-find">+0%</strong></div>
+            <div class="stat-row"><span>XP Bonus:</span><strong id="stat-xp-bonus">+0%</strong></div>
+            <div class="stat-row"><span>Drop Luck:</span><strong id="stat-luck">+0%</strong></div>
+            <div class="stat-row"><span>Tick Speed:</span><strong id="stat-tick-speed">1.0x</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: EQUIPMENT SLOTS & INVENTORY -->
+      <section class="panel tab-view gear-panel" id="tab-gear">
+        <div class="panel-header">
+          <h2>EQUIPMENT &amp; BACKPACK</h2>
+          <span class="badge badge-accent">DRAG &amp; DROP</span>
+        </div>
+
+        <div class="gear-view-content">
+          <div class="equipment-grid-container">
+            <h3>EQUIPPED GEAR (8 SLOTS)</h3>
+            <div class="gear-slots-grid" id="gear-slots">
+              <!-- 8 Equipment Slots rendered by JS -->
+            </div>
+          </div>
+
+          <div class="inventory-section">
+            <div class="inv-header">
+              <h3>BACKPACK (<span id="inv-count">0</span>/24)</h3>
+              <div class="inv-btn-group">
+                <button id="btn-merge-junk" class="btn btn-warning btn-xs" title="Merge all Common/Uncommon backpack items into higher rarity gear!">
+                  MERGE JUNK
+                </button>
+                <button id="btn-salvage-all" class="btn btn-outline btn-xs" title="Salvage all unequipped common/uncommon items for gold">
+                  SALVAGE ALL
+                </button>
+              </div>
+            </div>
+            <div class="inventory-grid" id="inventory-grid">
+              <!-- Bag slots rendered by JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: THE MERCHANT SHOP & FORGE -->
+      <section class="panel tab-view forge-shop-panel" id="tab-shop">
+        <!-- SUB-VIEW 1: MERCHANT SHOP (ACTIVE BY DEFAULT) -->
+        <div id="view-shop-merchant" class="sub-tab-view active">
+          <div class="shop-header">
+            <div>
+              <h3>MERCHANT GUILD</h3>
+              <small>New tier unlocks every 5 stages cleared</small>
+            </div>
+            <button id="btn-refresh-shop" class="btn btn-outline btn-xs" title="Reroll shop stock for a small gold fee">
+              RESTOCK (<span id="shop-refresh-cost">50</span> G)
+            </button>
+          </div>
+
+          <div class="shop-items-list" id="shop-items-list">
+            <!-- Shop item cards rendered by JS -->
+          </div>
+        </div>
+
+        <!-- SUB-VIEW 2: FUSION CRUCIBLE (MERGE ITEMS) -->
+        <div id="view-crucible-merge" class="sub-tab-view">
+          <div class="forge-container">
+            <div class="crucible-section">
+              <div class="forge-header">
+                <div>
+                  <h3>ARCANE FUSION CRUCIBLE</h3>
+                  <p>Combine 2 to 5 items to transmute into higher rarity and tier gear! Add any item from your backpack.</p>
+                </div>
+                <div class="crucible-header-btns">
+                  <button id="btn-crucible-autofill" class="btn btn-warning btn-xs" title="Auto-fill crucible with up to 5 junk items">AUTO-FILL JUNK</button>
+                  <button id="btn-crucible-clear" class="btn btn-outline btn-xs" title="Remove all items from crucible">CLEAR</button>
+                </div>
+              </div>
+
+              <!-- 5 Catalyst Slots Grid -->
+              <div class="crucible-slots-grid" id="crucible-slots-container">
+                <!-- 5 slots rendered by JS -->
+              </div>
+
+              <!-- Live Odds & Probability Meter -->
+              <div class="crucible-odds-panel" id="crucible-odds-panel">
+                <div class="odds-header">
+                  <span>TRANSMUTATION PREDICTION</span>
+                  <span id="crucible-mult-tag" class="odds-mult-badge">2-5 CATALYSTS REQUIRED</span>
+                </div>
+                
+                <div class="odds-breakdown-bar" id="odds-breakdown-bar">
+                  <div class="odds-bar-segment seg-common" style="width: 100%;">EMPTY</div>
+                </div>
+
+                <div class="odds-stats-grid" id="odds-stats-grid">
+                  <div class="odds-stat-pill"><span class="dot dot-uncommon"></span> UNCOMMON: <strong id="odd-pct-uncommon">0%</strong></div>
+                  <div class="odds-stat-pill"><span class="dot dot-rare"></span> RARE: <strong id="odd-pct-rare">0%</strong></div>
+                  <div class="odds-stat-pill"><span class="dot dot-epic"></span> EPIC: <strong id="odd-pct-epic">0%</strong></div>
+                  <div class="odds-stat-pill"><span class="dot dot-legendary"></span> LEGENDARY: <strong id="odd-pct-legendary">0%</strong></div>
+                  <div class="odds-stat-pill"><span class="dot dot-mythic"></span> MYTHIC: <strong id="odd-pct-mythic">0%</strong></div>
+                  <div class="odds-stat-pill"><span class="dot dot-tier"></span> TIER UP: <strong id="odd-pct-tier">0%</strong></div>
+                </div>
+
+                <button id="btn-crucible-fuse" class="btn btn-primary crucible-fuse-btn" disabled>
+                  [ TRANSMUTE CATALYSTS ]
+                </button>
+              </div>
+
+              <!-- Crucible Backpack Quick-Selector -->
+              <div class="forge-inventory-picker">
+                <div class="forge-picker-header">
+                  <h4>SELECT CATALYSTS FROM BACKPACK</h4>
+                  <small>Click ANY item to add or remove it from the Crucible (or drag &amp; drop)</small>
+                </div>
+                <div class="inventory-grid crucible-backpack-grid" id="crucible-backpack-grid">
+                  <!-- Backpack items rendered by JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-VIEW 3: ITEM ENHANCER & REFORGER (UPGRADE ITEMS) -->
+        <div id="view-forge-upgrade" class="sub-tab-view">
+          <div class="forge-container">
+            <div class="forge-enhancer-section">
+              <div class="forge-header">
+                <div>
+                  <h3>ITEM ENHANCER &amp; REFORGER</h3>
+                  <p>Select any equipped or backpack item to forge it (+1 level or reroll affixes).</p>
+                </div>
+              </div>
+
+              <div class="forge-active-slot" id="forge-item-preview">
+                <div class="empty-forge-msg">Select any equipped or backpack item to forge it.</div>
+              </div>
+
+              <div class="forge-actions-group" id="forge-actions" style="display: none;">
+                <button id="btn-forge-enhance" class="btn btn-primary forge-btn">
+                  <span>ENHANCE ITEM (+1)</span>
+                  <span id="forge-enhance-cost">Cost: 100 Gold</span>
+                </button>
+
+                <button id="btn-forge-reforge" class="btn btn-accent forge-btn">
+                  <span>REFORGE AFFIXES</span>
+                  <span id="forge-reforge-cost">Cost: 250 Gold</span>
+                </button>
+
+                <button id="btn-forge-salvage" class="btn btn-danger forge-btn">
+                  <span>SALVAGE FOR GOLD</span>
+                  <span id="forge-salvage-yield">Yield: +50 Gold</span>
+                </button>
+              </div>
+
+              <!-- Upgrade Item Picker (Equipped & Backpack) -->
+              <div class="forge-inventory-picker">
+                <div class="forge-picker-header">
+                  <h4>SELECT ITEM TO ENHANCE / REFORGE</h4>
+                  <small>Click any equipped item or backpack item below</small>
+                </div>
+                <div class="upgrade-gear-picker" id="upgrade-gear-picker">
+                  <!-- Equipped & backpack items rendered by JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB TABS NAVIGATION (Positioned near main bottom tabs) -->
+        <nav class="sub-tabs-nav">
+          <button class="sub-tab-btn active" data-subview="view-shop-merchant">SHOP</button>
+          <button class="sub-tab-btn" data-subview="view-crucible-merge">MERGE ITEMS</button>
+          <button class="sub-tab-btn" data-subview="view-forge-upgrade">UPGRADE ITEMS</button>
+        </nav>
+      </section>
+
+      <!-- TAB 5: ASCENSION & TROPHIES -->
+      <section class="panel tab-view ascend-trophies-panel" id="tab-ascend">
+        <!-- SUB-VIEW 1: ASCENSION & RELICS -->
+        <div id="view-ascend-relics" class="sub-tab-view active">
+          <div class="ascend-container">
+            <div class="ascend-header">
+              <h3>ANCIENT ASCENSION</h3>
+              <p>Rebirth into a higher state of power. Resets Gold, Level, and Stage to earn permanent Ancient Shards.</p>
+            </div>
+
+            <div class="ascend-payout-card">
+              <div class="payout-row">
+                <span>HIGHEST STAGE:</span>
+                <strong id="ascend-max-stage">1</strong>
+              </div>
+              <div class="payout-row">
+                <span>REQUIREMENT:</span>
+                <strong id="ascend-req-text" class="text-warning">[STAGE 25 REQUIRED]</strong>
+              </div>
+              <div class="payout-row">
+                <span>PENDING SHARDS:</span>
+                <strong id="ascend-pending-shards" class="shards-val">+0 SHARDS</strong>
+              </div>
+              <button id="btn-perform-ascend" class="btn btn-ascend" disabled>
+                ASCEND &amp; REBIRTH
+              </button>
+            </div>
+
+            <div class="relics-tree-section">
+              <h4>PERMANENT RELIC ARTIFACTS</h4>
+              <div class="relics-list" id="relics-list">
+                <!-- Relic upgrades rendered by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-VIEW 2: TROPHIES & ACHIEVEMENTS -->
+        <div id="view-achievements-list" class="sub-tab-view">
+          <div class="achievements-container">
+            <div class="achievements-header">
+              <h3>TROPHIES &amp; MILESTONES</h3>
+              <p>Complete feats of strength to unlock permanent passive stat bonuses across all runs.</p>
+            </div>
+            <div class="achievements-list" id="achievements-list">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB TABS NAVIGATION (Positioned near main bottom tabs) -->
+        <nav class="sub-tabs-nav">
+          <button class="sub-tab-btn active" data-subview="view-ascend-relics">ANCIENT ASCENSION</button>
+          <button class="sub-tab-btn" data-subview="view-achievements-list">TROPHIES &amp; MILESTONES</button>
+        </nav>
+      </section>
+
+    </main>
+
+    <!-- MOBILE-FIRST BOTTOM NAVIGATION DOCK -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+      <button class="mobile-nav-btn active" data-main-tab="tab-battle">
+        <div class="nav-icon-box">
+          <svg class="pixel-svg" width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M2 1h2v2H2V1zm2 2h2v2H4V3zm2 2h2v2H6V5zm2 2h2v2H8V7zm2 2h2v2h-2V9zm2 2h2v2h-2v-2zm-8 2h2v2H6v-2zm-2 0H2v-2h2v2zm0-4H2V7h2v2z"/>
+          </svg>
+        </div>
+        <span class="nav-label">BATTLE</span>
+      </button>
+
+      <button class="mobile-nav-btn" data-main-tab="tab-hero">
+        <div class="nav-icon-box">
+          <svg class="pixel-svg" width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M6 1h4v2H6V1zM4 3h8v2H4V3zm0 2h8v4H4V5zm-2 4h12v2H2V9zm2 2h8v4H4v-4z"/>
+          </svg>
+          <span id="nav-ap-badge" class="nav-badge hidden">0</span>
+        </div>
+        <span class="nav-label">HERO</span>
+      </button>
+
+      <button class="mobile-nav-btn" data-main-tab="tab-gear">
+        <div class="nav-icon-box">
+          <svg class="pixel-svg" width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M5 1h6v2H5V1zM3 3h10v2H3V3zM1 5h14v10H1V5zm3 3h8v4H4V8z"/>
+          </svg>
+          <span id="nav-inv-badge" class="nav-badge hidden">0</span>
+        </div>
+        <span class="nav-label">GEAR</span>
+      </button>
+
+      <button class="mobile-nav-btn" data-main-tab="tab-shop">
+        <div class="nav-icon-box">
+          <svg class="pixel-svg" width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M2 2h12v3H2V2zm2 3h8v3H4V5zm-2 3h12v3H2V8zm1 3h10v3H3v-3z"/>
+          </svg>
+        </div>
+        <span class="nav-label">SHOP</span>
+      </button>
+
+      <button class="mobile-nav-btn" data-main-tab="tab-ascend">
+        <div class="nav-icon-box">
+          <svg class="pixel-svg" width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M7 1h2v3H7V1zM4 4h8v2H4V4zm-2 2h12v4H2V6zm2 4h8v2H4v-2zm3 2h2v3H7v-3z"/>
+          </svg>
+          <span id="nav-ascend-badge" class="nav-badge hidden">!</span>
+        </div>
+        <span class="nav-label">ASCEND</span>
+      </button>
+    </nav>
+
+    <!-- PERSISTENT MINI BATTLE HUD (AT VERY BOTTOM BELOW TABS) -->
+    <div class="mini-battle-hud" id="mini-battle-hud">
+      <div class="mini-hud-info">
+        <span class="mini-hud-zone" id="mini-zone-name">Whispering Woods</span>
+        <span class="mini-hud-stage">STAGE <span id="mini-stage-num">1</span> <span id="mini-mode-tag" class="mini-mode-tag">[PUSH]</span></span>
+      </div>
+      <div class="mini-hud-bars">
+        <div class="mini-bar-item">
+          <span>HP</span>
+          <div class="mini-bar-track"><div id="mini-hero-hp-fill" class="mini-bar-fill hero-fill" style="width: 100%;"></div></div>
+        </div>
+        <div class="mini-bar-item">
+          <span>FOE</span>
+          <div class="mini-bar-track"><div id="mini-enemy-hp-fill" class="mini-bar-fill enemy-fill" style="width: 100%;"></div></div>
+        </div>
+      </div>
+      <button id="btn-mini-return-battle" class="btn btn-outline btn-xs mini-hud-btn">
+        VIEW BATTLE
+      </button>
+    </div>
+
+    <!-- FLOATING ITEM TOOLTIP MODAL -->
+    <div id="item-tooltip" class="item-tooltip hidden"></div>
+
+    <!-- MODAL / POPUPS (Save manager, Offline report) -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+      <div class="modal-dialog" id="modal-content">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ES MODULES ENTRY -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

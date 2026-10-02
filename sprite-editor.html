@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aegis Endless - Art Studio & Sprite Namer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/editor.css">
+</head>
+<body>
+  <div class="editor-app">
+    <!-- TOP TOOLBAR -->
+    <header class="editor-header">
+      <div class="header-left">
+        <a href="index.html" class="btn btn-outline btn-sm">&lt; RETURN TO GAME</a>
+        <div class="editor-title">
+          <h1>AEGIS ART STUDIO &amp; SPRITE NAMER</h1>
+          <span>Slice sprite sheets, enter custom item/monster names, and sync directly to the RPG</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-auto-name-all" class="btn btn-accent btn-sm" title="Populate all sprites with smart RPG preset names">AUTO-NAME ALL</button>
+        <button id="btn-export-json" class="btn btn-primary btn-sm" title="Export named sprites as JSON file">EXPORT JSON</button>
+        <button id="btn-apply-to-game" class="btn btn-warning btn-sm" title="Save custom sprite names directly into the RPG save data">APPLY TO GAME</button>
+      </div>
+    </header>
+
+    <!-- MAIN STUDIO WORKSPACE -->
+    <div class="studio-layout">
+      <!-- SIDEBAR: SHEET SELECTOR & FILTERS -->
+      <aside class="studio-sidebar">
+        <div class="sidebar-section">
+          <h3>Sprite Sheets</h3>
+          <div class="sheet-tabs" id="sheet-tabs">
+            <button class="sheet-tab-btn active" data-sheet="all">ALL SLICES (<span id="total-slice-count">0</span>)</button>
+            <button class="sheet-tab-btn" data-sheet="items">ITEMS &amp; ICONS</button>
+            <button class="sheet-tab-btn" data-sheet="basic">BASIC MONSTERS</button>
+            <button class="sheet-tab-btn" data-sheet="demons">DEMONS &amp; FIENDS</button>
+            <button class="sheet-tab-btn" data-sheet="dragons">DRAGONS &amp; WYRMS</button>
+            <button class="sheet-tab-btn" data-sheet="humanoids">HUMANOIDS &amp; HEROES</button>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Filter & Search</h3>
+          <input type="text" id="sprite-search" class="studio-search-input" placeholder="Search by name or category...">
+          
+          <div class="category-filter-chips">
+            <button class="chip active" data-filter="all">All</button>
+            <button class="chip" data-filter="weapon">Weapons</button>
+            <button class="chip" data-filter="armor">Armor</button>
+            <button class="chip" data-filter="potion">Potions</button>
+            <button class="chip" data-filter="monster">Monsters</button>
+            <button class="chip" data-filter="hero">Heroes</button>
+            <button class="chip" data-filter="material">Materials</button>
+          </div>
+        </div>
+
+        <div class="sidebar-section status-box">
+          <h4>Studio Status</h4>
+          <div class="status-row"><span>Total Sprites:</span><strong id="stat-total-sprites">0</strong></div>
+          <div class="status-row"><span>Named Sprites:</span><strong id="stat-named-sprites">0</strong></div>
+          <div class="status-row"><span>Custom Overrides:</span><strong id="stat-custom-count">0</strong></div>
+        </div>
+      </aside>
+
+      <!-- MAIN SPRITE GALLERY / EDITOR GRID -->
+      <main class="studio-main">
+        <div class="gallery-controls-bar">
+          <div class="controls-left">
+            <span id="gallery-counter">Showing 0 sprites</span>
+          </div>
+          <div class="controls-right">
+            <label class="zoom-slider-label">
+              Thumbnail Size:
+              <input type="range" id="zoom-slider" min="48" max="110" value="72">
+            </label>
+          </div>
+        </div>
+
+        <!-- SPRITE CARDS GRID -->
+        <div class="sprites-grid" id="sprites-grid">
+          <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <span>Loading and slicing sprite sheets...</span>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- MODAL POPUP (JSON Export) -->
+    <div id="editor-modal-overlay" class="modal-overlay hidden">
+      <div class="modal-dialog" id="editor-modal-content"></div>
+    </div>
+  </div>
+
+  <script type="module" src="js/sprite-editor.js"></script>
+</body>
+</html>
